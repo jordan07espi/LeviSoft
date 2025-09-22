@@ -68,5 +68,5 @@ $rolUsuario = $_SESSION['rol'] ?? 'Invitado';
             </div>
         </div>
     </header>
-
+    <?php include 'breadcrumb.php'; ?>
     <main class="container mx-auto p-4 flex-grow">

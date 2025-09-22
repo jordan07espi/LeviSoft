@@ -1,5 +1,17 @@
 <?php
-session_start();
+// Archivo: view/admin/dashboard.php
+
+// REGLA 1: INICIAR LA SESIÓN PRIMERO, DE FORMA SEGURA.
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// REGLA 2: LUEGO, INCLUIR HELPERS Y EJECUTAR LÓGICA.
+require_once '../../helpers/breadcrumb_helper.php';
+unset($_SESSION['breadcrumb']); 
+gestionar_breadcrumb();
+
+// REGLA 3: FINALMENTE, INCLUIR EL HEADER Y MOSTRAR CONTENIDO.
 include '../partials/header.php'; 
 ?>
 
@@ -47,7 +59,7 @@ include '../partials/header.php';
     <div>
         <h2 class="text-2xl font-bold text-gray-700 mb-4">Administración</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            <a href="#" class="modulo-card bg-white p-4 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center">
+            <a href="talento_humano.php" class="modulo-card bg-white p-4 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center">
                 <i class="fas fa-search-plus fa-3x text-cyan-500 mb-3"></i>
                 <h3 class="font-bold text-gray-800">Talento humano</h3>
                 <p class="text-xs text-gray-500 mt-1">Talento humano</p>
