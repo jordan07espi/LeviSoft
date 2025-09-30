@@ -14,17 +14,15 @@ function sanitizeHTML(str) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-
-    // --- LÓGICA PARA EL MENÚ MÓVIL ---
+    // --- LÓGICA PARA EL MENÚ MÓVIL (si existiera) ---
     const btnMenuMovil = document.getElementById('btnMenuMovil');
     const menuMovil = document.getElementById('menuMovil');
 
-    if (btnMenuMovil) {
+    if (btnMenuMovil && menuMovil) {
         btnMenuMovil.addEventListener('click', () => {
             menuMovil.classList.toggle('hidden');
         });
     }
 
-    // Carga inicial
-    cargarDatosGlobales();
+    // CORRECCIÓN: Se eliminó la llamada a la función inexistente 'cargarDatosGlobales()'
 });

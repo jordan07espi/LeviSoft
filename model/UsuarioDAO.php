@@ -218,5 +218,58 @@ class UsuarioDAO {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
+    /**
+     * Obtiene la lista de módulos permitidos para un usuario específico.
+     * @param int $id_usuario
+     * @return array
+     */
+    public function obtenerModulosPorUsuario($id_usuario) {
+        $sql = "SELECT DISTINCT
+                    m.id_modulo,
+                    m.nombre_modulo,
+                    m.categoria, -- <-- AÑADIR ESTA LÍNEA
+                    m.descripcion,
+                    m.icono_fa,
+                    m.url
+                FROM
+                    usuarios u
+                JOIN
+                    usuario_grupos ug ON u.id_usuario = ug.id_usuario
+                JOIN
+                    grupo_permisos gp ON ug.id_grupo = gp.id_grupo
+                JOIN
+                    modulos m ON gp.id_modulo = m.id_modulo
+                WHERE
+                    u.id_usuario = :id_usuario
+                ORDER BY
+                    m.categoria ASC, m.nombre_modulo ASC"; // <-- ACTUALIZAR ORDEN
+
+        // ... el resto del método se queda igual ...
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bindValue(':id_usuario', $id_usuario, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    /**
+     * Lista todos los usuarios que pertenecen a un grupo específico.
+     * @param int $id_grupo
+     * @return array
+     */
+    public function listarPorGrupo($id_grupo) {
+        $sql = "SELECT u.id_usuario, u.nombre_completo, u.cedula
+                FROM usuarios u
+                JOIN usuario_grupos ug ON u.id_usuario = ug.id_usuario
+                WHERE ug.id_grupo = :id_grupo AND u.activo = 1
+                ORDER BY u.nombre_completo ASC";
+
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bindValue(':id_grupo', $id_grupo, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 ?>

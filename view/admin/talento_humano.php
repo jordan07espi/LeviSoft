@@ -51,4 +51,5 @@ include '../partials/header.php';
     </div>
 </div>
 
-<script src="../assets/js/talento_humano.js"></script> <?php include '../partials/footer.php'; ?>
+<?php include '../partials/footer.php'; ?>
+<script src="../assets/js/talento_humano.js"></script>

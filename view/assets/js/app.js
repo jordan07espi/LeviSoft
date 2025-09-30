@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const sedeSelect = document.getElementById('sede-select');
     const periodoSelect = document.getElementById('periodo-select');
-    const searchInput = document.getElementById('search-modulos');
+    const searchInput = document.getElementById('search-modulos'); // Este elemento puede no existir
 
     // Función para cargar los datos iniciales del header (sedes y periodos)
     function cargarDatosDelHeader() {
@@ -35,34 +35,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- LÓGICA DE EVENT LISTENERS ---
 
-    // Cuando el usuario cambia la sede, deberás recargar la info de la página
     sedeSelect.addEventListener('change', function() {
         const sedeIdSeleccionada = this.value;
         console.log(`Sede cambiada a: ${sedeIdSeleccionada}. Aquí debes recargar los datos.`);
-        // Aquí iría la lógica para refrescar los módulos o datos del cuerpo de la página
     });
 
-    // Lo mismo para el periodo
     periodoSelect.addEventListener('change', function() {
         const periodoIdSeleccionado = this.value;
         console.log(`Periodo cambiado a: ${periodoIdSeleccionado}. Aquí debes recargar los datos.`);
     });
 
-    // Lógica de búsqueda/filtrado de módulos
-    searchInput.addEventListener('keyup', function() {
-        const filtro = this.value.toLowerCase();
-        const modulos = document.querySelectorAll('.modulo-card');
+    // CORRECCIÓN: Solo agregar el listener si el elemento de búsqueda existe
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const filtro = this.value.toLowerCase();
+            const modulos = document.querySelectorAll('.modulo-card');
 
-        modulos.forEach(modulo => {
-            // Busca en el título y la descripción del módulo
-            const textoModulo = modulo.textContent.toLowerCase();
-            if (textoModulo.includes(filtro)) {
-                modulo.style.display = 'block';
-            } else {
-                modulo.style.display = 'none';
-            }
+            modulos.forEach(modulo => {
+                const textoModulo = modulo.textContent.toLowerCase();
+                if (textoModulo.includes(filtro)) {
+                    modulo.style.display = 'block';
+                } else {
+                    modulo.style.display = 'none';
+                }
+            });
         });
-    });
+    }
 
     // Carga inicial de datos
     cargarDatosDelHeader();
