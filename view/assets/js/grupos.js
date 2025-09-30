@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- FUNCIONES ---
 
-    // Función que carga la lista de grupos en la columna izquierda
     function cargarGrupos() {
         fetch('../../controller/GrupoController.php?action=listarGrupos')
             .then(res => res.json())
@@ -29,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Función que carga todos los módulos disponibles y devuelve una promesa
     function cargarModulosDelSistema() {
         return fetch('../../controller/GrupoController.php?action=listarModulos')
             .then(res => res.json())
@@ -40,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
     
-    // Función que muestra los detalles de un grupo seleccionado
     function mostrarDetallesDeGrupo(idGrupo, nombreGrupo) {
         idGrupoActivo = idGrupo;
         nombreGrupoSeleccionado.textContent = `Permisos para: ${nombreGrupo}`;
@@ -78,37 +75,42 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
     
-    // Función que dibuja los checkboxes de los módulos
+    // --- FUNCIÓN CORREGIDA ---
     function renderizarCheckboxesDePermisos(permisosActivos) {
-        listaPermisosContainer.innerHTML = '';
+        let contentHTML = '';
         if (modulosDelSistema.length === 0) {
-            listaPermisosContainer.innerHTML = '<p class="text-red-500">No se pudieron cargar los módulos del sistema.</p>';
+            listaPermisosContainer.innerHTML = '<p class="text-red-500">No se pudieron cargar los módulos.</p>';
             return;
         }
 
+        // Usamos un Set para una búsqueda mucho más rápida y segura
+        const permisosSet = new Set(permisosActivos.map(String));
+
         modulosDelSistema.forEach(modulo => {
-            const isChecked = permisosActivos.includes(modulo.id_modulo.toString());
-            const checkboxHTML = `
+            // Comparamos usando el Set, asegurando que ambos sean strings
+            const isChecked = permisosSet.has(String(modulo.id_modulo));
+            contentHTML += `
                 <label class="flex items-center space-x-2">
                     <input type="checkbox" name="modulos[]" value="${modulo.id_modulo}" 
                            class="form-checkbox h-5 w-5 text-blue-600" ${isChecked ? 'checked' : ''}>
                     <span>${modulo.nombre_modulo}</span>
                 </label>
             `;
-            listaPermisosContainer.innerHTML += checkboxHTML;
         });
 
-        listaPermisosContainer.innerHTML += `
+        contentHTML += `
             <div class="col-span-full mt-4">
                 <button id="btnGuardarPermisos" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                     Guardar Cambios
                 </button>
             </div>
         `;
+        
+        // Asignamos todo el contenido de una sola vez para mayor eficiencia
+        listaPermisosContainer.innerHTML = contentHTML;
     }
 
-    // --- EVENT LISTENERS ---
-
+    // --- EVENT LISTENERS (Sin cambios) ---
     listaGruposContainer.addEventListener('click', function(e) {
         e.preventDefault();
         if (e.target.classList.contains('grupo-item')) {
@@ -139,9 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // --- CARGA INICIAL CORREGIDA ---
-    // Primero nos aseguramos de tener la lista de TODOS los módulos,
-    // y solo después cargamos los grupos para que el usuario pueda interactuar.
+    // --- CARGA INICIAL (Sin cambios) ---
     cargarModulosDelSistema().then(() => {
         cargarGrupos();
     });
