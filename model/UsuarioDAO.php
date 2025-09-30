@@ -271,5 +271,15 @@ class UsuarioDAO {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
+    public function buscarUsuarios($termino) {
+        $sql = "SELECT id_usuario, nombre_completo, cedula FROM usuarios 
+                WHERE (nombre_completo LIKE :termino OR cedula LIKE :termino) AND activo = 1 LIMIT 10";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bindValue(':termino', '%' . $termino . '%');
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 ?>

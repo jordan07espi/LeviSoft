@@ -1,24 +1,31 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // El ID del select en el HTML sigue siendo 'sede-select', no es necesario cambiarlo.
     const sedeSelect = document.getElementById('sede-select');
     const periodoSelect = document.getElementById('periodo-select');
-    const searchInput = document.getElementById('search-modulos'); // Este elemento puede no existir
-
-    // Función para cargar los datos iniciales del header (sedes y periodos)
+    
     function cargarDatosDelHeader() {
         fetch('../../controller/AppController.php?action=cargarDatosHeader')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Poblar selector de sedes
+                    // --- INICIO DE LA MODIFICACIÓN ---
+                    // Ahora poblamos el selector con los datos de 'coordinaciones'
                     sedeSelect.innerHTML = '';
-                    data.data.sedes.forEach(sede => {
-                        const option = document.createElement('option');
-                        option.value = sede.id_sede;
-                        option.textContent = `${sede.codigo_sede} - ${sede.nombre_sede}`;
-                        sedeSelect.appendChild(option);
-                    });
+                    if (data.data.coordinaciones && data.data.coordinaciones.length > 0) {
+                        data.data.coordinaciones.forEach(coord => {
+                            const option = document.createElement('option');
+                            // Usamos los nuevos campos de la tabla coordinaciones
+                            option.value = coord.id_coordinacion;
+                            option.textContent = `${coord.alias_coordinacion} - ${coord.nombre_coordinacion}`;
+                            sedeSelect.appendChild(option);
+                        });
+                    } else {
+                        // Mensaje por si no hay coordinaciones creadas
+                        sedeSelect.innerHTML = '<option value="">No hay coordinaciones</option>';
+                    }
+                    // --- FIN DE LA MODIFICACIÓN ---
 
-                    // Poblar selector de periodos
+                    // Poblar selector de periodos (esto no cambia)
                     periodoSelect.innerHTML = '';
                     data.data.periodos.forEach(periodo => {
                         const option = document.createElement('option');
@@ -33,32 +40,18 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error en fetch:', error));
     }
 
-    // --- LÓGICA DE EVENT LISTENERS ---
+    // --- LÓGICA DE EVENT LISTENERS (No cambia) ---
+    if(sedeSelect) {
+        sedeSelect.addEventListener('change', function() {
+            const coordinacionIdSeleccionada = this.value;
+            console.log(`Coordinación cambiada a: ${coordinacionIdSeleccionada}.`);
+        });
+    }
 
-    sedeSelect.addEventListener('change', function() {
-        const sedeIdSeleccionada = this.value;
-        console.log(`Sede cambiada a: ${sedeIdSeleccionada}. Aquí debes recargar los datos.`);
-    });
-
-    periodoSelect.addEventListener('change', function() {
-        const periodoIdSeleccionado = this.value;
-        console.log(`Periodo cambiado a: ${periodoIdSeleccionado}. Aquí debes recargar los datos.`);
-    });
-
-    // CORRECCIÓN: Solo agregar el listener si el elemento de búsqueda existe
-    if (searchInput) {
-        searchInput.addEventListener('keyup', function() {
-            const filtro = this.value.toLowerCase();
-            const modulos = document.querySelectorAll('.modulo-card');
-
-            modulos.forEach(modulo => {
-                const textoModulo = modulo.textContent.toLowerCase();
-                if (textoModulo.includes(filtro)) {
-                    modulo.style.display = 'block';
-                } else {
-                    modulo.style.display = 'none';
-                }
-            });
+    if(periodoSelect) {
+        periodoSelect.addEventListener('change', function() {
+            const periodoIdSeleccionado = this.value;
+            console.log(`Periodo cambiado a: ${periodoIdSeleccionado}.`);
         });
     }
 

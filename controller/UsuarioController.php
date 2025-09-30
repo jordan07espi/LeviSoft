@@ -103,6 +103,11 @@ switch ($action) {
             }
         }
         break;
+    case 'buscar':
+        $termino = $_GET['termino'] ?? '';
+        $response['success'] = true;
+        $response['data'] = $usuarioDAO->buscarUsuarios($termino);
+        break;
 }
 
 echo json_encode($response);

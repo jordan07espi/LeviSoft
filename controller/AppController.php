@@ -1,8 +1,8 @@
 <?php
 // Archivo: controller/AppController.php
-require_once '../model/SedeDAO.php';
 require_once '../model/PeriodoDAO.php';
-require_once '../model/UsuarioDAO.php'; // <-- LÍNEA AÑADIDA
+require_once '../model/UsuarioDAO.php';
+require_once '../model/CoordinacionDAO.php';
 
 session_start(); // <-- LÍNEA AÑADIDA
 
@@ -13,13 +13,13 @@ $action = $_GET['action'] ?? '';
 switch ($action) {
     case 'cargarDatosHeader':
         try {
-            $sedeDAO = new SedeDAO();
+            $coordinacionDAO = new CoordinacionDAO();
             $periodoDAO = new PeriodoDAO();
 
             $response['success'] = true;
             $response['data'] = [
-                'sedes'    => $sedeDAO->listarSedes(),
-                'periodos' => $periodoDAO->listarPeriodosActivos()
+                'coordinaciones' => $coordinacionDAO->listar(), 
+                'periodos'       => $periodoDAO->listarPeriodosActivos()
             ];
         } catch (Exception $e) {
             $response['message'] = 'Error al cargar los datos: ' . $e->getMessage();
