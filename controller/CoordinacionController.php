@@ -18,7 +18,7 @@ switch ($action) {
         $response['success'] = true;
         break;
     case 'agregar':
-        $ok = $coordinacionDAO->agregar($_POST['nombre'], $_POST['alias'], $_POST['id_sede'], $_POST['id_responsable']);
+        $ok = $coordinacionDAO->agregar($_POST['nombre'], $_POST['alias'], $_POST['id_sede']);
         $response['success'] = $ok;
         $response['message'] = $ok ? 'Coordinación agregada.' : 'Error al agregar.';
         break;
@@ -27,7 +27,7 @@ switch ($action) {
         $response['success'] = !!$response['data'];
         break;
     case 'actualizar':
-        $ok = $coordinacionDAO->actualizar($_POST['id'], $_POST['nombre'], $_POST['alias'], $_POST['id_sede'], $_POST['id_responsable']);
+        $ok = $coordinacionDAO->actualizar($_POST['id'], $_POST['nombre'], $_POST['alias'], $_POST['id_sede']);
         $response['success'] = $ok;
         $response['message'] = $ok ? 'Coordinación actualizada.' : 'Error al actualizar.';
         break;
@@ -40,6 +40,11 @@ switch ($action) {
         $sedeDAO = new SedeDAO();
         $response['success'] = true;
         $response['data'] = $sedeDAO->listar();         
+        break;
+    case 'quitarResponsable':
+        $ok = $coordinacionDAO->quitarResponsable($_POST['id']);
+        $response['success'] = $ok;
+        $response['message'] = $ok ? 'Responsable quitado correctamente.' : 'Error al quitar al responsable.';
         break;
 }
 

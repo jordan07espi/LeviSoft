@@ -6,24 +6,21 @@ class CoordinacionDAO {
     private $conexion;
     public function __construct() { $db = new Conexion(); $this->conexion = $db->getConnection(); }
 
-    // En CoordinacionDAO.php
-    public function listar($id_usuario, $rol) {
-        if ($rol === 'Administrador') {
-            // El administrador ve todas las coordinaciones activas
-            $sql = "SELECT c.id_coordinacion, c.nombre_coordinacion, c.alias_coordinacion
-                    FROM coordinaciones c
-                    WHERE c.activo = 1 ORDER BY c.nombre_coordinacion ASC";
-            $stmt = $this->conexion->prepare($sql);
-        } else {
-            // Otros roles solo ven las coordinaciones a las que tienen acceso
-            $sql = "SELECT c.id_coordinacion, c.nombre_coordinacion, c.alias_coordinacion
-                    FROM coordinaciones c
-                    JOIN usuario_coordinacion_acceso uca ON c.id_coordinacion = uca.id_coordinacion
-                    WHERE c.activo = 1 AND uca.id_usuario = :id_usuario
-                    ORDER BY c.nombre_coordinacion ASC";
-            $stmt = $this->conexion->prepare($sql);
-            $stmt->bindValue(':id_usuario', $id_usuario, PDO::PARAM_INT);
-        }
+    public function listar() {
+        $sql = "SELECT 
+                    c.id_coordinacion, 
+                    c.nombre_coordinacion, 
+                    c.alias_coordinacion,
+                    s.nombre_sede,  -- <-- La columna que faltaba
+                    c.id_responsable,
+                    u.nombre_completo as nombre_responsable
+                FROM coordinaciones c
+                JOIN sedes s ON c.id_sede = s.id_sede -- <-- El JOIN que faltaba
+                LEFT JOIN usuarios u ON c.id_responsable = u.id_usuario
+                WHERE c.activo = 1 
+                ORDER BY c.nombre_coordinacion ASC";
+                
+        $stmt = $this->conexion->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -35,22 +32,31 @@ class CoordinacionDAO {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function agregar($nombre, $alias, $id_sede, $id_responsable) {
-        $sql = "INSERT INTO coordinaciones (nombre_coordinacion, alias_coordinacion, id_sede, id_responsable) VALUES (?, ?, ?, ?)";
+
+    public function agregar($nombre, $alias, $id_sede) {
+        $sql = "INSERT INTO coordinaciones (nombre_coordinacion, alias_coordinacion, id_sede) VALUES (?, ?, ?)";
         $stmt = $this->conexion->prepare($sql);
-        return $stmt->execute([$nombre, $alias, $id_sede, $id_responsable ?: null]);
+        return $stmt->execute([$nombre, $alias, $id_sede]);
     }
 
-    public function actualizar($id, $nombre, $alias, $id_sede, $id_responsable) {
-        $sql = "UPDATE coordinaciones SET nombre_coordinacion = ?, alias_coordinacion = ?, id_sede = ?, id_responsable = ? WHERE id_coordinacion = ?";
+
+    public function actualizar($id, $nombre, $alias, $id_sede) {
+        $sql = "UPDATE coordinaciones SET nombre_coordinacion = ?, alias_coordinacion = ?, id_sede = ? WHERE id_coordinacion = ?";
         $stmt = $this->conexion->prepare($sql);
-        return $stmt->execute([$nombre, $alias, $id_sede, $id_responsable ?: null, $id]);
+        return $stmt->execute([$nombre, $alias, $id_sede, $id]);
     }
 
     public function eliminar($id) { // Eliminación lógica
         $sql = "UPDATE coordinaciones SET activo = 0 WHERE id_coordinacion = ?";
         $stmt = $this->conexion->prepare($sql);
         return $stmt->execute([$id]);
+    }
+
+
+    public function quitarResponsable($id_coordinacion) {
+        $sql = "UPDATE coordinaciones SET id_responsable = NULL WHERE id_coordinacion = ?";
+        $stmt = $this->conexion->prepare($sql);
+        return $stmt->execute([$id_coordinacion]);
     }
 }
 ?>

@@ -14,10 +14,11 @@ include '../partials/header.php';
         <table class="w-full">
             <thead>
                 <tr class="bg-gray-200">
-                    <th class="p-3 text-left">Nombre</th><th class="p-3 text-left">Alias</th>
-                    <th class="p-3 text-left">Sede</th><th class="p-3 text-left">Responsable</th>
-                    <th class="p-3 text-center">Acciones</th>
-                </tr>
+                    <th class="p-3 text-left">Nombre</th>
+                    <th class="p-3 text-left">Alias</th>
+                    <th class="p-3 text-left">Sede</th>
+                    <th class="p-3 text-left">Responsable</th>
+                    <th class="p-3 text-center w-32"></th> </tr>
             </thead>
             <tbody id="tabla-coordinaciones"></tbody>
         </table>
@@ -29,19 +30,20 @@ include '../partials/header.php';
         <h2 id="modal-title" class="text-2xl font-bold mb-4"></h2>
         <form id="coordinacion-form">
             <input type="hidden" name="id" id="coordinacion-id">
-            <div class="grid grid-cols-2 gap-4">
-                <div><label>Nombre</label><input type="text" name="nombre" id="nombre" class="w-full border p-2 rounded" required></div>
-                <div><label>Alias</label><input type="text" name="alias" id="alias" class="w-full border p-2 rounded"></div>
-                <div><label>Sede</label><select name="id_sede" id="id_sede" class="w-full border p-2 rounded" required></select></div>
+            <input type="hidden" name="alias" id="alias">
+            
+            <div class="space-y-4">
                 <div>
-                    <label>Responsable</label>
-                    <div class="flex">
-                        <input type="text" id="nombre_responsable" class="w-full border p-2 rounded-l bg-gray-100" readonly>
-                        <input type="hidden" name="id_responsable" id="id_responsable">
-                        <button type="button" id="btn-buscar-responsable" class="bg-gray-500 text-white p-2 rounded-r">Buscar</button>
-                    </div>
+                    <label for="nombre" class="block mb-1">Nombre de la Coordinación</label>
+                    <input type="text" name="nombre" id="nombre" class="w-full border p-2 rounded" required>
+                </div>
+                <div>
+                    <label for="id_sede" class="block mb-1">Sede</label>
+                    <select name="id_sede" id="id_sede" class="w-full border p-2 rounded" required>
+                        </select>
                 </div>
             </div>
+
             <div class="flex justify-end gap-4 mt-6">
                 <button type="button" id="btn-cancelar" class="bg-gray-300 px-4 py-2 rounded">Cancelar</button>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Guardar</button>
