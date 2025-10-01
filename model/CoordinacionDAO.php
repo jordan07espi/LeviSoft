@@ -6,16 +6,26 @@ class CoordinacionDAO {
     private $conexion;
     public function __construct() { $db = new Conexion(); $this->conexion = $db->getConnection(); }
 
-    public function listar() {
-        $sql = "SELECT 
-                    c.id_coordinacion, c.nombre_coordinacion, c.alias_coordinacion,
-                    s.nombre_sede,
-                    u.nombre_completo as nombre_responsable
-                FROM coordinaciones c
-                JOIN sedes s ON c.id_sede = s.id_sede
-                LEFT JOIN usuarios u ON c.id_responsable = u.id_usuario
-                WHERE c.activo = 1 ORDER BY c.nombre_coordinacion ASC";
-        return $this->conexion->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    // En CoordinacionDAO.php
+    public function listar($id_usuario, $rol) {
+        if ($rol === 'Administrador') {
+            // El administrador ve todas las coordinaciones activas
+            $sql = "SELECT c.id_coordinacion, c.nombre_coordinacion, c.alias_coordinacion
+                    FROM coordinaciones c
+                    WHERE c.activo = 1 ORDER BY c.nombre_coordinacion ASC";
+            $stmt = $this->conexion->prepare($sql);
+        } else {
+            // Otros roles solo ven las coordinaciones a las que tienen acceso
+            $sql = "SELECT c.id_coordinacion, c.nombre_coordinacion, c.alias_coordinacion
+                    FROM coordinaciones c
+                    JOIN usuario_coordinacion_acceso uca ON c.id_coordinacion = uca.id_coordinacion
+                    WHERE c.activo = 1 AND uca.id_usuario = :id_usuario
+                    ORDER BY c.nombre_coordinacion ASC";
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->bindValue(':id_usuario', $id_usuario, PDO::PARAM_INT);
+        }
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function obtenerPorId($id) {

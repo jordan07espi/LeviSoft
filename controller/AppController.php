@@ -11,14 +11,23 @@ $response = ['success' => false, 'message' => 'Acción no reconocida.'];
 $action = $_GET['action'] ?? '';
 
 switch ($action) {
+    // En AppController.php, dentro del switch
     case 'cargarDatosHeader':
         try {
+            if (!isset($_SESSION['id_usuario'])) {
+                throw new Exception("Sesión no iniciada.");
+            }
+
+            $id_usuario = $_SESSION['id_usuario'];
+            $rol = $_SESSION['rol'];
+
             $coordinacionDAO = new CoordinacionDAO();
             $periodoDAO = new PeriodoDAO();
 
             $response['success'] = true;
             $response['data'] = [
-                'coordinaciones' => $coordinacionDAO->listar(), 
+                // Pasamos los datos del usuario para el filtrado
+                'coordinaciones' => $coordinacionDAO->listar($id_usuario, $rol), 
                 'periodos'       => $periodoDAO->listarPeriodosActivos()
             ];
         } catch (Exception $e) {

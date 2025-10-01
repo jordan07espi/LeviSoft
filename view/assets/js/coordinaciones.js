@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const responsableResultsContainer = document.getElementById('responsable-results');
     
     let sedes = [];
+    let coordinacionIdParaAsignar = null; // Para saber a qué fila asignar el responsable desde la tabla
 
     // --- FUNCIONES ---
 
@@ -26,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
         cargarCoordinaciones();
     }
 
-    // Carga las sedes para el dropdown del modal
     async function cargarSedes() {
         try {
             const response = await fetch('../../controller/CoordinacionController.php?action=listarSedes');
@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Carga y muestra las coordinaciones en la tabla
     function cargarCoordinaciones() {
         fetch('../../controller/CoordinacionController.php?action=listar')
             .then(res => res.json())
@@ -52,12 +51,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 tablaBody.innerHTML = '';
                 if (data.success) {
                     data.data.forEach(coord => {
+                        let responsableHtml = '';
+                        if (coord.nombre_responsable) {
+                            responsableHtml = `<span>${coord.nombre_responsable}</span>`;
+                        } else {
+                            responsableHtml = `<button class="btn-agregar-responsable bg-green-500 text-white px-3 py-1 text-sm rounded" data-id="${coord.id_coordinacion}">Agregar</button>`;
+                        }
+
                         const fila = `
                             <tr class="border-b hover:bg-gray-50">
                                 <td class="p-3 font-semibold">${coord.nombre_coordinacion}</td>
                                 <td class="p-3">${coord.alias_coordinacion}</td>
                                 <td class="p-3">${coord.nombre_sede}</td>
-                                <td class="p-3">${coord.nombre_responsable || 'Sin Asignar'}</td>
+                                <td class="p-3">${responsableHtml}</td>
                                 <td class="p-3 text-center">
                                     <button class="btn-editar bg-yellow-500 text-white px-3 py-1 rounded" data-id="${coord.id_coordinacion}">Editar</button>
                                     <button class="btn-eliminar bg-red-500 text-white px-3 py-1 rounded" data-id="${coord.id_coordinacion}">Eliminar</button>
@@ -70,11 +76,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // --- MANEJO DE MODALES ---
-
     function abrirModal(modo, id = null) {
         form.reset();
         coordinacionIdInput.value = '';
+        document.getElementById('nombre_responsable').value = ''; // Limpiar campo de texto del responsable
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         
@@ -83,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             modalTitle.textContent = 'Editar Coordinación';
             coordinacionIdInput.value = id;
-            // Cargar datos para editar
+            
             const formData = new FormData();
             formData.append('action', 'obtener');
             formData.append('id', id);
@@ -91,11 +96,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(res => res.json())
                 .then(data => {
                     if(data.success) {
-                        document.getElementById('nombre').value = data.data.nombre_coordinacion;
-                        document.getElementById('alias').value = data.data.alias_coordinacion;
-                        document.getElementById('id_sede').value = data.data.id_sede;
-                        document.getElementById('id_responsable').value = data.data.id_responsable;
-                        // Aquí necesitaríamos buscar el nombre del responsable si quisiéramos mostrarlo
+                        const coordinacion = data.data;
+                        document.getElementById('nombre').value = coordinacion.nombre_coordinacion;
+                        document.getElementById('alias').value = coordinacion.alias_coordinacion;
+                        document.getElementById('id_sede').value = coordinacion.id_sede;
+                        document.getElementById('id_responsable').value = coordinacion.id_responsable;
+                        // Aquí necesitaremos una función extra para buscar el nombre del responsable y ponerlo en el input de texto
                     }
                 });
         }
@@ -107,6 +113,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function abrirModalBusqueda() {
+        searchResponsableInput.value = '';
+        responsableResultsContainer.innerHTML = '';
         buscarResponsableModal.classList.remove('hidden');
         buscarResponsableModal.classList.add('flex');
     }
@@ -118,7 +126,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- EVENT LISTENERS ---
 
-    btnNueva.addEventListener('click', () => abrirModal('agregar'));
+    btnNueva.addEventListener('click', () => {
+        coordinacionIdParaAsignar = null; // Asegurarse de que no esté activo el modo de asignación directa
+        abrirModal('agregar');
+    });
     btnCancelar.addEventListener('click', cerrarModal);
     btnBuscarResponsable.addEventListener('click', abrirModalBusqueda);
     btnCancelarBusqueda.addEventListener('click', cerrarModalBusqueda);
@@ -167,15 +178,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
     responsableResultsContainer.addEventListener('click', function(e) {
         if (e.target.dataset.id) {
-            document.getElementById('id_responsable').value = e.target.dataset.id;
-            document.getElementById('nombre_responsable').value = e.target.dataset.nombre;
+            const idResponsable = e.target.dataset.id;
+            const nombreResponsable = e.target.dataset.nombre;
             cerrarModalBusqueda();
+            
+            if (coordinacionIdParaAsignar) { // Si venimos desde el botón "Agregar" de la tabla
+                const formData = new FormData();
+                formData.append('action', 'asignarResponsable');
+                formData.append('id_coordinacion', coordinacionIdParaAsignar);
+                formData.append('id_responsable', idResponsable);
+
+                fetch('../../controller/CoordinacionController.php', { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) cargarCoordinaciones();
+                        alert(data.message);
+                    });
+                coordinacionIdParaAsignar = null;
+            } else { // Si venimos desde el formulario modal principal
+                document.getElementById('id_responsable').value = idResponsable;
+                document.getElementById('nombre_responsable').value = nombreResponsable;
+            }
         }
     });
 
     tablaBody.addEventListener('click', function(e) {
         const id = e.target.dataset.id;
         if (e.target.classList.contains('btn-editar')) {
+            coordinacionIdParaAsignar = null;
             abrirModal('editar', id);
         }
         if (e.target.classList.contains('btn-eliminar')) {
@@ -190,6 +220,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         if(data.success) cargarCoordinaciones();
                     });
             }
+        }
+        if (e.target.classList.contains('btn-agregar-responsable')) {
+            coordinacionIdParaAsignar = id; // Guardamos el ID de la coordinación
+            abrirModalBusqueda();
         }
     });
 

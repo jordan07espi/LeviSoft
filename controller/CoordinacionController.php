@@ -12,7 +12,9 @@ $coordinacionDAO = new CoordinacionDAO();
 
 switch ($action) {
     case 'listar':
-        $response['data'] = $coordinacionDAO->listar();
+        $id_usuario = $_SESSION['id_usuario'] ?? 0;
+        $rol = $_SESSION['rol'] ?? '';
+        $response['data'] = $coordinacionDAO->listar($id_usuario, $rol);
         $response['success'] = true;
         break;
     case 'agregar':

@@ -21,13 +21,11 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 container.innerHTML = '';
                 if (data.success && data.data.length > 0) {
-                    // Agrupar módulos por categoría
                     const modulosAgrupados = data.data.reduce((acc, modulo) => {
                         (acc[modulo.categoria] = acc[modulo.categoria] || []).push(modulo);
                         return acc;
                     }, {});
 
-                    // Renderizar cada categoría
                     for (const categoria in modulosAgrupados) {
                         const modulosHTML = modulosAgrupados[categoria].map(crearModuloCard).join('');
                         container.innerHTML += `
@@ -49,14 +47,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Lógica de búsqueda (ya la tenías pero la integramos aquí)
+    // --- LÓGICA DE BÚSQUEDA CORREGIDA ---
     if (searchInput) {
         searchInput.addEventListener('keyup', function() {
             const filtro = this.value.toLowerCase().trim();
             const modulos = document.querySelectorAll('.modulo-card');
+            
             modulos.forEach(modulo => {
                 const textoModulo = modulo.textContent.toLowerCase();
-                modulo.style.display = textoModulo.includes(filtro) ? '' : 'flex';
+                // Si el texto del módulo incluye el filtro, lo mostramos ('flex'). Si no, lo ocultamos ('none').
+                if (textoModulo.includes(filtro)) {
+                    modulo.style.display = 'flex';
+                } else {
+                    modulo.style.display = 'none';
+                }
             });
         });
     }
