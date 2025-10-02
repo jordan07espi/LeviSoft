@@ -58,5 +58,14 @@ class CoordinacionDAO {
         $stmt = $this->conexion->prepare($sql);
         return $stmt->execute([$id_coordinacion]);
     }
+
+    public function asignarResponsable($id_coordinacion, $id_responsable) {
+        $id_responsable = !empty($id_responsable) ? $id_responsable : null;
+        $sql = "UPDATE coordinaciones SET id_responsable = :id_responsable WHERE id_coordinacion = :id_coordinacion";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bindValue(':id_responsable', $id_responsable, PDO::PARAM_INT);
+        $stmt->bindValue(':id_coordinacion', $id_coordinacion, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
 }
 ?>

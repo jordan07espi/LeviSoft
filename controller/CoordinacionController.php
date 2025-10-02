@@ -46,6 +46,11 @@ switch ($action) {
         $response['success'] = $ok;
         $response['message'] = $ok ? 'Responsable quitado correctamente.' : 'Error al quitar al responsable.';
         break;
+    case 'asignarResponsable':
+        $ok = $coordinacionDAO->asignarResponsable($_POST['id_coordinacion'], $_POST['id_responsable']);
+        $response['success'] = $ok;
+        $response['message'] = $ok ? 'Responsable asignado.' : 'Error al asignar.';
+        break;
 }
 
 echo json_encode($response);

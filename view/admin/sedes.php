@@ -21,8 +21,7 @@ include '../partials/header.php';
                     <th class="p-3">Parroquia</th>
                     <th class="p-3">Teléfonos</th>
                     <th class="p-3">Dirección</th>
-                    <th class="p-3 text-center">Acciones</th>
-                </tr>
+                    <th class="p-3 text-center w-32"></th> </tr>
             </thead>
             <tbody id="tabla-sedes"></tbody>
         </table>

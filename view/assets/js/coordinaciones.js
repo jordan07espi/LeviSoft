@@ -228,17 +228,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // --- LISTENER DE LA TABLA ACTUALIZADO ---
     tablaBody.addEventListener('click', function(e) {
+        // Prevenimos la acción por defecto para los enlaces del menú
         e.preventDefault();
-        const id = e.target.dataset.id;
-        // Lógica para mostrar/ocultar el menú
+
+        // Lógica para mostrar/ocultar y posicionar el menú
         const dropdown = e.target.closest('.dropdown');
         if (dropdown) {
             const menu = dropdown.querySelector('.dropdown-menu');
-            if (menu) {
-                menu.classList.toggle('hidden');
+            const isVisible = !menu.classList.contains('hidden');
+
+            // Cierra todos los otros menús abiertos
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+
+            // Si el menú no estaba visible, lo mostramos y posicionamos
+            if (!isVisible) {
+                menu.classList.remove('hidden');
+                const buttonRect = dropdown.getBoundingClientRect();
+                menu.style.position = 'fixed';
+                menu.style.top = `${buttonRect.bottom}px`;
+                menu.style.left = `${buttonRect.left}px`;
             }
         }
+
+        const id = e.target.dataset.id;
         if (e.target.classList.contains('btn-editar')) {
             coordinacionIdParaAsignar = null;
             abrirModal('editar', id);
