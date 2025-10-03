@@ -177,9 +177,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     cerrarModal();
                     cargarCoordinaciones();
+                    window.refrescarHeader(); // <-- ¡AQUÍ ESTÁ LA MAGIA!
                 }
             });
     });
+
     
     searchResponsableInput.addEventListener('keyup', function() {
         const termino = this.value;
@@ -220,10 +222,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetch('../../controller/CoordinacionController.php', { method: 'POST', body: formData })
                     .then(res => res.json())
                     .then(data => {
-                        if (data.success) cargarCoordinaciones();
+                        if (data.success) {
+                            cargarCoordinaciones();
+                            window.refrescarHeader(); // <-- ¡Y AQUÍ!
+                        }
                         alert(data.message);
                     });
-                coordinacionIdParaAsignar = null;
             }
         }
     });
@@ -263,10 +267,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('action', 'eliminar');
                 formData.append('id', id);
                 fetch('../../controller/CoordinacionController.php', { method: 'POST', body: formData })
-                    .then(res => res.json())
-                    .then(data => {
+                    .then(res => res.json()).then(data => {
                         alert(data.message);
-                        if(data.success) cargarCoordinaciones();
+                        if(data.success) {
+                            cargarCoordinaciones();
+                            window.refrescarHeader(); // <-- ¡Y AQUÍ!
+                        }
                     });
             }
         }
@@ -282,11 +288,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('action', 'quitarResponsable');
                 formData.append('id', id);
                 fetch('../../controller/CoordinacionController.php', { method: 'POST', body: formData })
-                    .then(res => res.json())
-                    .then(data => {
+                    .then(res => res.json()).then(data => {
                         alert(data.message);
-                        if (data.success) {
+                        if(data.success) {
                             cargarCoordinaciones();
+                            window.refrescarHeader(); // <-- ¡Y AQUÍ!
                         }
                     });
             }
